@@ -14,16 +14,30 @@ export default function Home() {
     return match ? match[2] : null;
   }
 
-  function handleExtract() {
+  function checkImageExists(url) {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => resolve(true);
+      img.onerror = () => resolve(false);
+      img.src = url;
+    });
+  }
+
+  async function handleExtract() {
     const result = extractASIN(url.trim());
     if (!result) {
       setError("Invalid Amazon product URL");
       return;
     }
+
+    const testImage = `https://m.media-amazon.com/images/P/${result}.01._SX300_.jpg`;
+    const exists = await checkImageExists(testImage);
+
     setAsin(result);
-    setError("");
-    setImageOk(true);
+    setImageOk(exists);
+    setManualImage("");
     setSaved(false);
+    setError("");
   }
 
   const autoImage =
@@ -79,19 +93,20 @@ export default function Home() {
             style={styles.input}
           />
 
-          <img
-            src={finalImage}
-            style={styles.image}
-            onError={() => setImageOk(false)}
-          />
-
-          {!imageOk && (
-            <input
-              placeholder="Paste Image URL manually"
-              value={manualImage}
-              onChange={(e) => setManualImage(e.target.value)}
-              style={styles.input}
-            />
+          {imageOk ? (
+            <img src={autoImage} style={styles.image} />
+          ) : (
+            <>
+              <p style={{ color: "#c00" }}>
+                ❌ Amazon image not found. Paste image URL manually.
+              </p>
+              <input
+                placeholder="Paste Image URL"
+                value={manualImage}
+                onChange={(e) => setManualImage(e.target.value)}
+                style={styles.input}
+              />
+            </>
           )}
 
           <button onClick={saveProduct} style={styles.saveBtn}>
@@ -104,6 +119,8 @@ export default function Home() {
     </div>
   );
 }
+
+/* ================= STYLES ================= */
 
 const styles = {
   container: {
