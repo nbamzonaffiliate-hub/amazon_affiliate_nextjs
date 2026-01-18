@@ -1,19 +1,20 @@
 import { getStore } from "@netlify/blobs";
 
 export default async function handler(req, res) {
-  const products = [];
-  const clicks = [];
+  try {
+    const store = getStore("products");
 
-  const pStore = getStore("products");
-  const cStore = getStore("clicks");
+    const keys = await store.list();
+    const items = [];
 
-  for await (const key of pStore.list()) {
-    products.push(await pStore.get(key));
+    for (const key of keys) {
+      const value = await store.get(key);
+      items.push(JSON.parse(value));
+    }
+
+    res.status(200).json(items);
+  } catch (error) {
+    console.error("FETCH ERROR:", error);
+    res.status(500).json({ error: error.message });
   }
-
-  for await (const key of cStore.list()) {
-    clicks.push(await cStore.get(key));
-  }
-
-  res.status(200).json({ products, clicks });
 }
