@@ -4,12 +4,18 @@ export default async function handler(req, res) {
   try {
     const store = getStore("products");
 
-    const keys = await store.list();
+    const result = await store.list();
+
     const items = [];
 
-    for (const key of keys) {
-      const value = await store.get(key);
-      items.push(JSON.parse(value));
+    // ✅ FIX: iterate result.blobs
+    if (result && Array.isArray(result.blobs)) {
+      for (const blob of result.blobs) {
+        const value = await store.get(blob.key);
+        if (value) {
+          items.push(JSON.parse(value));
+        }
+      }
     }
 
     res.status(200).json(items);
