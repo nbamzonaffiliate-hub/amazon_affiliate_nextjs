@@ -87,19 +87,24 @@ export default function Home() {
       {/* ✅ Latest Products */}
       <h3 style={{ marginTop: 40 }}>Latest Products</h3>
 
-      {products.length === 0 && <p>No products yet</p>}
+{products.length === 0 && <p>No products yet</p>}
 
-      {products.map((p) => (
-        <div key={p.asin} style={styles.listItem}>
-          <img src={p.image} width="80" />
-          <div>
-            <p>{p.asin}</p>
-            <a href={p.link} target="_blank">
-              View
-            </a>
-          </div>
-        </div>
-      ))}
+<div style={styles.grid}>
+  {products.map((p) => (
+    <div key={p.asin} style={styles.cardItem}>
+      <img src={p.image} style={styles.productImage} />
+
+      <div style={styles.cardContent}>
+        <h4 style={styles.asin}>{p.asin}</h4>
+
+        <a href={p.link} target="_blank" style={styles.viewBtn}>
+          View on Amazon
+        </a>
+      </div>
+    </div>
+  ))}
+</div>
+
 
       <p style={styles.note}>
         Disclosure: As an Amazon Associate I earn from qualifying purchases.
@@ -110,18 +115,20 @@ export default function Home() {
 
 const styles = {
   container: {
-    maxWidth: 600,
+    maxWidth: 700,
     margin: "40px auto",
     padding: 20,
-    fontFamily: "Arial",
+    fontFamily: "Arial, sans-serif",
     textAlign: "center"
   },
+
   input: {
     width: "100%",
     padding: 12,
     fontSize: 16,
     marginBottom: 10
   },
+
   button: {
     width: "100%",
     padding: 12,
@@ -129,34 +136,76 @@ const styles = {
     background: "#ff9900",
     border: "none",
     cursor: "pointer",
-    fontWeight: "bold"
-  },
-  card: {
-    marginTop: 20,
-    border: "1px solid #ddd",
-    padding: 15,
+    fontWeight: "bold",
     borderRadius: 6
   },
+
+  card: {
+    marginTop: 20,
+    border: "1px solid #eee",
+    padding: 15,
+    borderRadius: 8,
+    boxShadow: "0 4px 10px rgba(0,0,0,0.05)"
+  },
+
   link: {
     display: "inline-block",
     marginTop: 10,
-    padding: 12,
+    padding: "12px 18px",
     background: "#ff9900",
-    border: "none",
-    cursor: "pointer",
+    borderRadius: 6,
+    textDecoration: "none",
     color: "#000",
     fontWeight: "bold"
   },
-  listItem: {
+
+  grid: {
+    display: "grid",
+    gridTemplateColumns: "1fr",
+    gap: 16,
+    marginTop: 20
+  },
+
+  cardItem: {
     display: "flex",
     alignItems: "center",
-    gap: 10,
-    borderBottom: "1px solid #eee",
-    padding: "10px 0"
+    gap: 16,
+    padding: 16,
+    background: "#fff",
+    borderRadius: 10,
+    boxShadow: "0 6px 16px rgba(0,0,0,0.08)"
   },
+
+  productImage: {
+    width: 90,
+    height: "auto",
+    objectFit: "contain"
+  },
+
+  cardContent: {
+    textAlign: "left",
+    flex: 1
+  },
+
+  asin: {
+    margin: "0 0 8px",
+    fontSize: 16,
+    fontWeight: "bold"
+  },
+
+  viewBtn: {
+    display: "inline-block",
+    padding: "8px 14px",
+    background: "#0073e6",
+    color: "#fff",
+    borderRadius: 5,
+    textDecoration: "none",
+    fontSize: 14
+  },
+
   note: {
     fontSize: 12,
     color: "#555",
-    marginTop: 20
+    marginTop: 30
   }
 };
