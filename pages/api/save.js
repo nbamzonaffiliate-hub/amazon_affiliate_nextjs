@@ -1,33 +1,33 @@
-import { getStore } from "@netlify/blobs";
+import fs from "fs";
+import path from "path";
 
-export default async function handler(req, res) {
+const filePath = path.join(process.cwd(), "data.json");
+
+export default function handler(req, res) {
   if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
+    return res.status(405).end();
   }
 
-  try {
-    // 🔑 Get Netlify Blob Store
-    const store = getStore("products");
+  const { asin, title, image } = req.body;
 
-    const { asin, image, link } = req.body;
-
-    if (!asin) {
-      return res.status(400).json({ error: "ASIN required" });
-    }
-
-    const data = {
-      asin,
-      image,
-      link,
-      createdAt: new Date().toISOString()
-    };
-
-    // ✅ Save using ASIN as key
-    await store.set(asin, JSON.stringify(data));
-
-    return res.status(200).json({ success: true, data });
-  } catch (error) {
-    console.error("SAVE ERROR:", error);
-    return res.status(500).json({ error: error.message });
+  if (!asin || !title || !image) {
+    return res.status(400).json({ error: "Missing fields" });
   }
+
+  let data = [];
+
+  if (fs.existsSync(filePath)) {
+    data = JSON.parse(fs.readFileSync(filePath, "utf8"));
+  }
+
+  data.unshift({
+    asin,
+    title,
+    image,
+    date: new Date().toISOString().slice(0, 10),
+  });
+
+  fs.writeFileSync(filePath, JSON.stringify(data.slice(0, 100), null, 2));
+
+  res.status(200).json({ success: true });
 }
