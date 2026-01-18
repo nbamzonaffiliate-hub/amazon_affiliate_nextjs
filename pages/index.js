@@ -1,14 +1,32 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function Home() {
   const [asin, setAsin] = useState("");
   const [show, setShow] = useState(false);
+  const [products, setProducts] = useState([]);
 
   const image =
-    asin && `https://images-na.ssl-images-amazon.com/images/P/${asin}.01._SX300_.jpg`;
+    asin &&
+    `https://images-na.ssl-images-amazon.com/images/P/${asin}.01._SX300_.jpg`;
 
   const shareUrl =
     asin && `https://affiliate-marketing-nb.netlify.app/p/${asin}`;
+
+  // ✅ Load latest 10 products
+  async function loadProducts() {
+    try {
+      const res = await fetch("/api/data");
+      if (!res.ok) return;
+      const data = await res.json();
+      setProducts(data.slice(-10).reverse()); // latest 10
+    } catch (err) {
+      console.error("LOAD PRODUCTS ERROR", err);
+    }
+  }
+
+  useEffect(() => {
+    loadProducts();
+  }, []);
 
   function generate() {
     if (asin.length !== 10) {
@@ -18,6 +36,28 @@ export default function Home() {
     setShow(true);
   }
 
+  // ✅ Save product THEN open buy page
+  async function saveAndOpen() {
+    try {
+      await fetch("/api/save", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          asin,
+          image,
+          link: shareUrl
+        })
+      });
+
+      await loadProducts();
+
+      window.open(shareUrl, "_blank");
+    } catch (err) {
+      console.error("SAVE ERROR", err);
+      window.open(shareUrl, "_blank"); // still open even if save fails
+    }
+  }
+
   return (
     <div style={styles.container}>
       <h2>Amazon Affiliate Generator</h2>
@@ -25,7 +65,7 @@ export default function Home() {
       <input
         placeholder="Enter ASIN (Example: B00HUJQIZK)"
         value={asin}
-        onChange={(e) => setAsin(e.target.value.trim())}
+        onChange={(e) => setAsin(e.target.value.trim().toUpperCase())}
         style={styles.input}
       />
 
@@ -38,11 +78,28 @@ export default function Home() {
           <img src={image} style={{ maxWidth: "100%" }} />
           <p>Share this product or buy on Amazon</p>
 
-          <a href={shareUrl} target="_blank" style={styles.link}>
+          <button onClick={saveAndOpen} style={styles.link}>
             🔗 Open Share / Buy Page
-          </a>
+          </button>
         </div>
       )}
+
+      {/* ✅ Latest Products */}
+      <h3 style={{ marginTop: 40 }}>Latest Products</h3>
+
+      {products.length === 0 && <p>No products yet</p>}
+
+      {products.map((p) => (
+        <div key={p.asin} style={styles.listItem}>
+          <img src={p.image} width="80" />
+          <div>
+            <p>{p.asin}</p>
+            <a href={p.link} target="_blank">
+              View
+            </a>
+          </div>
+        </div>
+      ))}
 
       <p style={styles.note}>
         Disclosure: As an Amazon Associate I earn from qualifying purchases.
@@ -85,9 +142,17 @@ const styles = {
     marginTop: 10,
     padding: 12,
     background: "#ff9900",
-    textDecoration: "none",
+    border: "none",
+    cursor: "pointer",
     color: "#000",
     fontWeight: "bold"
+  },
+  listItem: {
+    display: "flex",
+    alignItems: "center",
+    gap: 10,
+    borderBottom: "1px solid #eee",
+    padding: "10px 0"
   },
   note: {
     fontSize: 12,
