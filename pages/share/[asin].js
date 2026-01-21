@@ -6,7 +6,7 @@ export async function getServerSideProps({ params }) {
 
 export default function Share({ asin }) {
   const image = `https://images-na.ssl-images-amazon.com/images/P/${asin}.01._SX300_.jpg`;
-  const link = `https://affiliate-marketing-nb.netlify.app/p/${asin}`;
+  const link = `//offerpulse.in/p/${asin}`;
 
   const text = `I found this useful product.
 Check details and buy securely 👇

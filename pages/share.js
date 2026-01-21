@@ -32,7 +32,7 @@ export default function SharePage() {
   const current = filtered.slice(start, start + PAGE_SIZE);
 
   function share(platform, asin) {
-    const link = `https://affiliate-marketing-nb.netlify.app/p/${asin}`;
+    const link = `//offerpulse.in/p/${asin}`;
     const text = `I found this useful product.\nBuy securely on Amazon 👇\n${link}`;
     const encoded = encodeURIComponent(text);
 

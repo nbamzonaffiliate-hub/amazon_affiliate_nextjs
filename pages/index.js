@@ -10,7 +10,7 @@ export default function Home() {
     `https://images-na.ssl-images-amazon.com/images/P/${asin}.01._SX300_.jpg`;
 
   const shareUrl =
-    asin && `https://affiliate-marketing-nb.netlify.app/p/${asin}`;
+    asin && `//offerpulse.in/p/${asin}`;
 
   // ✅ Load latest 10 products
   async function loadProducts() {
